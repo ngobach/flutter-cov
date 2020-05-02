@@ -38,9 +38,8 @@ class _DetailState extends State<Detail> {
   Widget _buildBody(BuildContext context) {
     return FutureBuilder(
       builder: (ctx, ss) {
-        return !ss.hasData
-            ? Center(child: CircularProgressIndicator())
-            : _buildResultBody(context, ss.data);
+        return ss.hasData ? _buildResultBody(context, ss.data)
+            : ss.hasError ? _buildErrorBody(context, ss.error) : Center(child: CircularProgressIndicator());
       },
       future: future,
     );
@@ -65,6 +64,12 @@ class _DetailState extends State<Detail> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildErrorBody(BuildContext context, dynamic error) {
+    return Center(
+      child: Text('Error: $error}'),
     );
   }
 }
