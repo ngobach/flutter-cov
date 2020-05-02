@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -38,8 +39,11 @@ class _DetailState extends State<Detail> {
   Widget _buildBody(BuildContext context) {
     return FutureBuilder(
       builder: (ctx, ss) {
-        return ss.hasData ? _buildResultBody(context, ss.data)
-            : ss.hasError ? _buildErrorBody(context, ss.error) : Center(child: CircularProgressIndicator());
+        return ss.hasData
+            ? _buildResultBody(context, ss.data)
+            : ss.hasError
+                ? _buildErrorBody(context, ss.error)
+                : Center(child: CircularProgressIndicator());
       },
       future: future,
     );
@@ -81,28 +85,34 @@ class CovDaily extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(8),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              '${formatDate(day.date)}',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade400,
-                fontSize: 16,
+    return InkWell(
+      onTap: () => _openInfoModal(context),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                '${formatDate(day.date)}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade400,
+                  fontSize: 16,
+                ),
               ),
             ),
-          ),
-          _createBox(Colors.white, '${NumberFormat.decimalPattern().format(day.totalCases)}'),
-          SizedBox(width: 4),
-          _createBox(Colors.red, '+${NumberFormat.decimalPattern().format(day.newCases)}'),
-          SizedBox(width: 4),
-          _createBox(Colors.orange, '${NumberFormat.decimalPattern().format(day.activeCases)}'),
-        ],
+            _createBox(Colors.white,
+                '${NumberFormat.decimalPattern().format(day.totalCases)}'),
+            SizedBox(width: 4),
+            _createBox(Colors.red,
+                '+${NumberFormat.decimalPattern().format(day.newCases)}'),
+            SizedBox(width: 4),
+            _createBox(Colors.orange,
+                '${NumberFormat.decimalPattern().format(day.activeCases)}'),
+          ],
+        ),
       ),
     );
   }
@@ -114,7 +124,7 @@ class CovDaily extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
             border: Border.all(color: color),
-            borderRadius: BorderRadius.all(Radius.circular(8))),
+            borderRadius: BorderRadius.all(Radius.circular(4))),
         child: Center(
           child: Text(
             text,
@@ -124,6 +134,59 @@ class CovDaily extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _openInfoModal(BuildContext context) {
+    showDialog(
+      context: context,
+      child: SimpleDialog(
+        contentPadding: EdgeInsets.zero,
+        title: Text(
+          formatDate(day.date),
+          textAlign: TextAlign.center,
+        ),
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                ...[
+                  ['Total', '${NumberFormat.decimalPattern().format(day.totalCases)}'],
+                  ['New', '${NumberFormat.decimalPattern().format(day.newCases)}'],
+                  ['Active', '${NumberFormat.decimalPattern().format(day.activeCases)}'],
+                ].map(
+                  (p) => Expanded(
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          p[0],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          p[1],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Center(
+            child: FlatButton(
+                onPressed: () => Navigator.pop(context), child: Text('OK')),
+          ),
+        ],
+        titlePadding: EdgeInsets.all(10),
       ),
     );
   }
@@ -159,9 +222,12 @@ class CovSummary extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                _createColumn('Total', '${NumberFormat.compact().format(data.total)}'),
-                _createColumn('Recovered', '${NumberFormat.compact().format(data.recovered)}'),
-                _createColumn('Death', '${NumberFormat.compact().format(data.death)}'),
+                _createColumn(
+                    'Total', '${NumberFormat.compact().format(data.total)}'),
+                _createColumn('Recovered',
+                    '${NumberFormat.compact().format(data.recovered)}'),
+                _createColumn(
+                    'Death', '${NumberFormat.compact().format(data.death)}'),
               ],
             ),
           )
